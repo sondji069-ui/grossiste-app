@@ -6,27 +6,66 @@
 <title>Grossiste App</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  /* Le design reste identique */
-  :root { --primary: #10b981; --primary-dark: #059669; --bg: #f8fafc; --card: #fff; --border: #e2e8f0; --text: #1e293b; --muted: #64748b; --danger: #ef4444; }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+  :root { --primary: #10b981; --primary-dark: #059669; --primary-light: #ecfdf5; --bg: #f8fafc; --card: #fff; --border: #e2e8f0; --text: #1e293b; --muted: #64748b; --danger: #ef4444; --warn: #f59e0b; --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   body { background: var(--bg); color: var(--text); padding-bottom: 90px; }
-  .header { background: white; padding: 16px; position: sticky; top: 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
-  .header h1 { font-size: 22px; font-weight: 800; }
+  .header { background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); padding: 16px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
   .container { max-width: 640px; margin: 0 auto; padding: 16px; }
-  .card { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid var(--border); margin-bottom: 16px; }
-  .btn { display: flex; justify-content: center; align-items: center; padding: 16px; border-radius: 14px; border: none; background: var(--primary); color: white; font-size: 16px; font-weight: 700; width: 100%; cursor: pointer; }
-  .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
-  input, select { width: 100%; padding: 16px; border: 2px solid var(--border); border-radius: 14px; margin-bottom: 16px; font-size: 16px; }
-  label { font-size: 14px; color: var(--muted); margin-bottom: 8px; display: block; font-weight: 600; }
-  .nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom); }
+  .card { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid var(--border); margin-bottom: 16px; box-shadow: var(--shadow); }
+  .row { display: flex; gap: 12px; }
+  .btn { display: flex; justify-content: center; align-items: center; padding: 16px; border-radius: 14px; border: none; background: var(--primary); color: white; font-size: 16px; font-weight: 700; width: 100%; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+  .btn:active { transform: scale(0.98); }
+  .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); box-shadow: none; }
+  .btn-danger { background: var(--danger); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
+  .btn-info { background: #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); }
+  .fab { position: fixed; bottom: 100px; right: 24px; width: 64px; height: 64px; background: var(--primary); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 32px; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4); cursor: pointer; z-index: 50; transition: transform 0.2s; }
+  .fab:active { transform: scale(0.9) rotate(90deg); }
+  .nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 10; }
   .nav a { flex: 1; text-align: center; padding: 12px 4px; color: var(--muted); text-decoration: none; font-size: 11px; font-weight: 600; }
   .nav a.active { color: var(--primary); }
   .nav a span { display: block; font-size: 22px; margin-bottom: 4px; }
   .item { padding: 16px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
   .item:last-child { border-bottom: none; }
-  .item-title { font-weight: 700; font-size: 16px; }
-  .item-sub { color: var(--muted); font-size: 14px; }
-  .error-box { background: var(--danger); color: white; padding: 20px; border-radius: 12px; font-weight: 600; margin-bottom: 16px; }
+  .item-title { font-weight: 700; font-size: 16px; color: var(--text); }
+  .item-sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .big-stat { font-size: 36px; font-weight: 900; color: var(--text); letter-spacing: -1.5px; }
+  .text-danger { color: var(--danger); font-weight: 700; }
+  .text-warn { color: var(--warn); font-weight: 700; }
+  .text-ok { color: var(--primary); font-weight: 700; }
+  .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .empty span { font-size: 48px; display: block; margin-bottom: 16px; opacity: 0.5; }
+  input, select { width: 100%; padding: 16px; border: 2px solid var(--border); border-radius: 14px; margin-bottom: 16px; font-size: 16px; background: #f8fafc; font-weight: 500; }
+  input:focus, select:focus { outline: none; border-color: var(--primary); background: white; }
+  label { font-size: 14px; color: var(--muted); margin-bottom: 8px; display: block; font-weight: 600; }
+  .modal-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; display: flex; align-items: flex-end; backdrop-filter: blur(4px); }
+  .modal-bg.active { opacity: 1; pointer-events: auto; }
+  .modal { background: white; width: 100%; max-width: 640px; margin: 0 auto; border-radius: 28px 28px 0 0; padding: 24px; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 90vh; overflow-y: auto; }
+  .modal-bg.active .modal { transform: translateY(0); }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .modal-header h2 { font-size: 22px; font-weight: 800; }
+  .close-btn { background: var(--bg); border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; color: var(--muted); cursor: pointer; display: flex; justify-content: center; align-items: center; }
+  .panier-liste { background: var(--bg); border-radius: 16px; padding: 16px; margin-bottom: 20px; }
+  .panier-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .panier-item:last-child { border-bottom: none; }
+  .panier-item-title { font-size: 15px; font-weight: 700; }
+  .panier-item-prix { font-size: 15px; color: var(--primary); font-weight: 800; }
+  .btn-remove { background: #fee2e2; color: var(--danger); border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+  th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid var(--border); font-size: 14px; }
+  th { color: var(--muted); font-size: 12px; text-transform: uppercase; font-weight: 700; }
+  .text-right { text-align: right; }
+  .search-bar { margin-bottom: 16px; position: relative; }
+  .search-bar input { padding-left: 44px; margin-bottom: 0; border-radius: 20px; }
+  .search-icon { position: absolute; left: 16px; top: 16px; font-size: 18px; color: var(--muted); }
+  .alert-box { background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); padding: 16px; border-radius: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; font-weight: 600; }
+  .toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-30px); background: var(--text); color: white; padding: 14px 28px; border-radius: 30px; font-size: 15px; font-weight: 600; z-index: 200; opacity: 0; transition: all 0.3s; pointer-events: none; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .chart-container { display: flex; align-items: flex-end; justify-content: space-between; height: 150px; padding-top: 20px; border-bottom: 2px solid var(--border); margin-bottom: 8px; }
+  .chart-bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; margin: 0 4px; }
+  .chart-bar { width: 100%; background: var(--primary); border-radius: 6px 6px 0 0; min-height: 2px; transition: height 0.5s ease; position: relative; }
+  .chart-value { font-size: 10px; font-weight: 700; color: var(--primary); margin-bottom: 4px; white-space: nowrap; }
+  .chart-label { font-size: 11px; color: var(--muted); margin-top: 8px; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -36,53 +75,50 @@
 </div>
 
 <div id="app" class="container">Initialisation...</div>
-<div id="fab" style="display:none; position:fixed; bottom:100px; right:24px; width:64px; height:64px; background:var(--primary); color:white; border-radius:50%; align-items:center; justify-content:center; font-size:32px; box-shadow:0 4px 12px rgba(0,0,0,0.2); cursor:pointer;" onclick="handleFab()">+</div>
+<div id="fab" class="fab" onclick="handleFab()" style="display:none;">+</div>
 
-<div id="modal-bg" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:100; align-items:flex-end;" onclick="closeModal(event)">
-  <div id="modal-content" style="background:white; width:100%; max-width:640px; margin:0 auto; border-radius:24px 24px 0 0; padding:24px; max-height:90vh; overflow-y:auto;" onclick="event.stopPropagation()"></div>
+<div id="modal-bg" class="modal-bg" onclick="closeModal(event)">
+  <div class="modal" id="modal-content" onclick="event.stopPropagation()"></div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 // ==========================================
-// 1. VOS CLÉS SUPABASE (Vérifiez bien les guillemets !)
+// 1. CONFIGURATION SUPABASE
 // ==========================================
-const SUPABASE_URL = "https://cmaxgwjlhhdcerwoengs.supabase.co"; 
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtYXhnd2psaGhkY2Vyd29lbmdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2OTYzMDEsImV4cCI6MjEwODI3MjMwMX0.rtT9WrTwUMW5-xeOm-UsjVCWiqbMv9cNTKENbkidcEk"; // Doit commencer par eyJ...
+const SUPABASE_URL = "https://cmaxgwjlhhdcerwoengs.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtYXhnd2psaGhkY2Vyd29lbmdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2OTYzMDEsImV4cCI6MjEwODI3MjMwMX0.rtT9WrTwUMW5-xeOm-UsjVCWiqbMv9cNTKENbkidcEk"; // <--- REMPLACEZ CE TEXTE PAR VOTRE CLÉ
 
-let supabaseClient;
-try {
-  supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-} catch (e) {
-  document.getElementById('app').innerHTML = "<div class='error-box'>Erreur de connexion Supabase : " + e.message + "</div>";
-}
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ==========================================
-// 2. LOGIQUE DE L'APPLICATION
+// 2. GESTION DES DONNÉES
 // ==========================================
 var db = { clients: [], produits: [], commandes: [], creances: [], depenses: [] };
-var currentView = 'dashboard';
 var isLogged = false;
+var currentView = 'dashboard';
 var panierActuel = []; 
+var commandeEnCoursEdition = null; 
 var isClientMode = window.location.search.includes('mode=client');
 
-const $ = s => document.querySelector(s);
-const fmt = n => Number(n || 0).toLocaleString('fr-FR');
+var $ = function(s) { return document.querySelector(s); };
+var fmt = function(n) { return Number(n || 0).toLocaleString('fr-FR'); };
+function toast(m) { var t = $('#toast'); t.textContent = m; t.className = 'toast show'; setTimeout(function() { t.className = 'toast'; }, 3000); }
 
-function showError(msg) {
-  document.getElementById('app').innerHTML = "<div class='error-box'>Erreur : " + msg + "</div>";
+function openModal(title, contentHTML) {
+  $('#modal-content').innerHTML = '<div class="modal-header"><h2>' + title + '</h2><button class="close-btn" onclick="closeModal()">✕</button></div>' + contentHTML;
+  $('#modal-bg').classList.add('active');
+}
+function closeModal(e) {
+  if (e && e.target !== $('#modal-bg') && e.target.className !== 'close-btn') return;
+  $('#modal-bg').classList.remove('active');
 }
 
-// Charger les données
 async function chargerDonnees() {
-  if (!supabaseClient) return showError("Supabase n'est pas initialisé.");
-  
   try {
-    const { data: clients, error: err1 } = await supabaseClient.from('clients').select('*');
-    if (err1) throw new Error("Table 'clients' : " + err1.message);
-    
-    const { data: produits, error: err2 } = await supabaseClient.from('produits').select('*');
-    if (err2) throw new Error("Table 'produits' : " + err2.message);
-
+    const { data: clients } = await supabaseClient.from('clients').select('*').order('nom');
+    const { data: produits } = await supabaseClient.from('produits').select('*').order('nom');
     const { data: commandes } = await supabaseClient.from('commandes').select('*').order('date', { ascending: false });
     const { data: creances } = await supabaseClient.from('creances').select('*');
     const { data: depenses } = await supabaseClient.from('depenses').select('*');
@@ -100,136 +136,156 @@ async function chargerDonnees() {
       renderView(currentView);
     }
   } catch (err) {
-    showError(err.message);
+    $('#app').innerHTML = "<div style='color:white; background:#ef4444; padding:20px; border-radius:10px;'><h2>Erreur de connexion</h2><p>" + err.message + "</p></div>";
   }
 }
 
-// --- VUES ---
-function renderLogin() {
-  document.getElementById('header-title').textContent = "Connexion";
-  $('#app').innerHTML = `<div class="card" style="margin-top:40px;"><h2 style="margin-bottom:24px;font-size:28px;">Entrez votre code</h2><label>Code PIN</label><input id="pin" type="tel" placeholder="••••"><button class="btn" onclick="doLogin()">Se connecter</button><div style="text-align:center; margin-top:20px;"><a href="?mode=client" style="color:var(--primary); font-weight:600; text-decoration:none;">Je suis un client (Boutique)</a></div></div>`;
-}
-window.doLogin = () => { if ($('#pin').value === "1234") { isLogged = true; renderView('dashboard'); } else { alert('PIN incorrect (Indice: 1234)'); } };
-
-function renderView(v) {
-  currentView = v;
-  $('#fab').style.display = 'none';
-  
-  if (v === 'dashboard') {
-    document.getElementById('header-title').textContent = "Accueil";
-    $('#fab').style.display = 'flex';
-    var totalCreances = 0;
-    db.creances.forEach(c => { if (c.statut !== 'payee') totalCreances += (c.montant - c.montant_paye); });
-    
-    $('#app').innerHTML = `<div class="card" style="background: var(--primary); color: white;"><div>Créances totales</div><div style="font-size:32px;font-weight:900;">${fmt(totalCreances)} FCFA</div></div><div class="card"><div>Produits en base : ${db.produits.length}</div></div><button class="btn btn-outline" onclick="chargerDonnees()">Rafraîchir</button>` + nav('dashboard');
-  }
-
-  if (v === 'produits') {
-    document.getElementById('header-title').textContent = "Produits";
-    $('#fab').style.display = 'flex';
-    var html = '<div class="card">';
-    if (db.produits.length === 0) html += '<div>Aucun produit en base.</div>';
-    db.produits.forEach(p => {
-      html += `<div class="item"><div><div class="item-title">${p.nom}</div><div class="item-sub">Stock: ${p.stock} | Prix: ${fmt(p.prix_gros)} F</div></div></div>`;
-    });
-    html += '</div>' + nav('produits');
-    $('#app').innerHTML = html;
-  }
-
-  if (v === 'clients') {
-    document.getElementById('header-title').textContent = "Clients";
-    var html = '<div class="card">';
-    if (db.clients.length === 0) html += '<div>Aucun client.</div>';
-    db.clients.forEach(c => {
-      html += `<div class="item"><div class="item-title">${c.nom}</div><div class="item-sub">${c.telephone || ''}</div></div>`;
-    });
-    html += '</div>' + nav('clients');
-    $('#app').innerHTML = html;
-  }
-}
-
-function nav(active) {
-  var tabs = [['dashboard','📊','Accueil'],['produits','📦','Produits'],['clients','👥','Clients']];
-  var html = '<nav class="nav">';
-  tabs.forEach(t => {
-    html += `<a href="#" class="${active===t[0]?'active':''}" onclick="renderView('${t[0]}');return false"><span>${t[1]}</span>${t[2]}</a>`;
-  });
-  return html + '</nav>';
-}
-
-// --- MODE CLIENT ---
+// ==========================================
+// 3. MODE CLIENT
+// ==========================================
 function renderClientView() {
-  document.getElementById('header-title').textContent = "Boutique en ligne";
-  var html = '<div class="card" style="background:var(--primary); color:white;"><h2>Bienvenue !</h2><p>Commandez vos produits en gros.</p></div>';
+  $('#header-title').textContent = "Boutique en ligne";
+  $('#fab').style.display = 'flex';
+  
+  var html = '<div class="card" style="background:var(--primary); color:white; margin-bottom:20px;"><h2>Bienvenue !</h2><p style="margin-top:8px; opacity:0.9;">Commandez vos produits en gros directement.</p></div>';
   html += '<label>Votre nom / Boutique</label><input id="client_nom" placeholder="Ex: Boutique Ndiaye">';
   html += '<label>Votre numéro (WhatsApp)</label><input id="client_tel" type="tel" placeholder="Ex: 771234567">';
+  html += '<h3 style="margin-top:24px; margin-bottom:12px;">Catalogue</h3><div class="card" style="padding:0; overflow:hidden;"><table><thead><tr><th>Produit</th><th class="text-right">Prix</th><th></th></tr></thead><tbody>';
   
-  html += '<h3>Produits disponibles</h3><div class="card">';
-  db.produits.forEach(p => {
-    if (p.stock > 0) {
-      html += `<div class="item"><div><div class="item-title">${p.nom}</div><div class="item-sub">${fmt(p.prix_gros)} FCFA</div></div><button class="btn btn-outline" style="width:auto; padding:8px 16px;" onclick="ajouterAuPanierClient(${p.id})">Ajouter</button></div>`;
-    }
-  });
-  html += '</div><div id="panier_client_zone"></div>';
+  for(var i=0; i<db.produits.length; i++) {
+    var p = db.produits[i];
+    var dispo = p.stock > 0;
+    html += '<tr><td><div style="font-weight:700;">' + p.nom + '</div><div class="item-sub">' + (dispo ? 'En stock' : '<span class="text-danger">Rupture</span>') + '</div></td><td class="text-right" style="font-weight:800;">' + fmt(p.prix_gros) + ' F</td><td class="text-right">' + (dispo ? '<button class="btn btn-sm btn-outline" style="padding:8px; width:auto;" onclick="ajouterAuPanierClient(' + p.id + ')">Ajouter</button>' : '') + '</td></tr>';
+  }
+  html += '</tbody></table></div>';
+  html += '<div id="panier_client_zone"></div>';
   $('#app').innerHTML = html;
   majPanierClientUI();
 }
 
-window.ajouterAuPanierClient = (id) => {
-  var prod = db.produits.find(p => p.id === id);
+window.ajouterAuPanierClient = function(produit_id) {
+  var prod = null;
+  for(var i=0; i<db.produits.length; i++){ if(db.produits[i].id === produit_id) prod = db.produits[i]; }
   if(!prod) return;
-  var item = panierActuel.find(i => i.produit_id === id);
-  if(item) item.quantite++;
-  else panierActuel.push({ produit_id: prod.id, nom: prod.nom, prix_unitaire: prod.prix_gros, quantite: 1 });
+  var itemExistant = panierActuel.find(function(item) { return item.produit_id === produit_id; });
+  if(itemExistant) {
+    if(itemExistant.quantite >= prod.stock) return toast("Stock maximum atteint");
+    itemExistant.quantite++;
+  } else {
+    panierActuel.push({ produit_id: prod.id, nom: prod.nom, prix_unitaire: prod.prix_gros, quantite: 1 });
+  }
+  toast("Ajouté au panier !");
   majPanierClientUI();
 };
 
 function majPanierClientUI() {
   var zone = $('#panier_client_zone');
   if(!zone) return;
-  if(panierActuel.length === 0) { zone.innerHTML = ''; return; }
-  
+  if(panierActuel.length === 0) { zone.innerHTML = '<div class="card" style="text-align:center; color:var(--muted);">Votre panier est vide</div>'; return; }
   var total = 0;
-  var html = '<div class="card"><h3>Votre Panier</h3>';
-  panierActuel.forEach((item, index) => {
-    var st = item.quantite * item.prix_unitaire;
-    total += st;
-    html += `<div class="item"><div>${item.quantite} x ${item.nom}</div><div>${fmt(st)} F</div></div>`;
-  });
-  html += `<div style="font-size:20px; font-weight:900; margin-top:16px;">Total : ${fmt(total)} F</div>`;
-  html += `<button class="btn" style="margin-top:16px;" onclick="validerCommandeClient()">Commander</button></div>`;
+  var html = '<div class="card"><h3 style="margin-bottom:12px;">Votre Panier</h3>';
+  for(var i=0; i<panierActuel.length; i++) {
+    var item = panierActuel[i], st = item.quantite * item.prix_unitaire; total += st;
+    html += '<div class="panier-item"><div><div class="panier-item-title">' + item.nom + '</div><div class="item-sub">' + item.quantite + ' x ' + fmt(item.prix_unitaire) + ' F</div></div><div style="display:flex; align-items:center; gap:12px;"><div class="panier-item-prix">' + fmt(st) + ' F</div><button class="btn-remove" onclick="retirerDuPanierClient(' + i + ')">✕</button></div></div>';
+  }
+  html += '<div style="display:flex; justify-content:space-between; margin-top:16px; font-size:20px; font-weight:900;"><span>Total</span><span>' + fmt(total) + ' F</span></div>';
+  html += '<button class="btn" style="margin-top:16px;" onclick="validerCommandeClient()">Commander (Via WhatsApp)</button></div>';
   zone.innerHTML = html;
 }
+window.retirerDuPanierClient = function(index) { panierActuel.splice(index, 1); majPanierClientUI(); };
 
-window.validerCommandeClient = async () => {
-  var nom = $('#client_nom').value;
-  var tel = $('#client_tel').value;
-  if(!nom || !tel) return alert("Entrez votre nom et numéro");
+window.validerCommandeClient = async function() {
+  var nom = $('#client_nom').value, tel = $('#client_tel').value;
+  if(!nom || !tel) return toast("Entrez votre nom et numéro");
+  if(panierActuel.length === 0) return toast("Panier vide");
   
-  var total = 0;
-  panierActuel.forEach(i => total += i.quantite * i.prix_unitaire);
+  var total = 0; for(var i=0; i<panierActuel.length; i++) total += (panierActuel[i].quantite * panierActuel[i].prix_unitaire);
   
-  const { error } = await supabaseClient.from('commandes').insert([{ client_id: null, items: panierActuel, total: total, acompte: 0, reste: total, date: new Date().toLocaleDateString('fr-FR') }]);
+  var { data: cmdData, error: cmdErr } = await supabaseClient.from('commandes').insert([{ client_id: null, items: panierActuel, total: total, acompte: 0, reste: total, date: new Date().toLocaleDateString('fr-FR') }]).select();
+  if (cmdErr) return toast("Erreur : " + cmdErr.message);
   
-  if (error) return alert("Erreur lors de la commande : " + error.message);
-  
-  alert("Commande envoyée au grossiste !");
-  panierActuel = [];
-  majPanierClientUI();
-};
-
-window.handleFab = () => {
-  if (currentView === 'produits') {
-    var nom = prompt("Nom du produit :");
-    if(!nom) return;
-    var prix = prompt("Prix de vente :");
-    var stock = prompt("Stock :");
-    supabaseClient.from('produits').insert([{nom: nom, prix_achat: 0, prix_gros: Number(prix), stock: Number(stock)}]).then(() => chargerDonnees());
+  if(cmdData && cmdData[0]) {
+    await supabaseClient.from('creances').insert([{ commande_id: cmdData[0].id, client_id: null, montant: total, montant_paye: 0, date_echeance: new Date().toLocaleDateString('fr-FR'), statut: 'impayee' }]);
   }
+
+  var msg = "🛒 *NOUVELLE COMMANDE*\n👤 " + nom + "\n📞 " + tel + "\n------------------------\n";
+  for(var j=0; j<panierActuel.length; j++) { msg += "▪️ " + panierActuel[j].quantite + " x " + panierActuel[j].nom + "\n"; }
+  msg += "------------------------\n*TOTAL : " + fmt(total) + " FCFA*\n\n(Commande enregistrée)";
+  
+  window.open('https://wa.me/221770000000?text=' + encodeURIComponent(msg), '_blank'); // Remplacez ce numéro par le vôtre
+  panierActuel = []; toast("Commande envoyée !"); majPanierClientUI();
 };
+
+// ==========================================
+// 4. MODE GROSSISTE
+// ==========================================
+function renderLogin() {
+  $('#header-title').textContent = "Connexion";
+  $('#app').innerHTML = '<div class="card" style="margin-top:40px;"><h2 style="margin-bottom:24px;font-size:28px;font-weight:800;">Entrez votre code</h2><label>Code PIN</label><input id="pin" type="tel" placeholder="••••"><button class="btn" onclick="doLogin()">Se connecter</button><div style="text-align:center; margin-top:20px;"><a href="?mode=client" style="color:var(--primary); font-weight:600; text-decoration:none;">Je suis un client (Boutique)</a></div></div>';
+}
+window.doLogin = function() { if ($('#pin').value === "1234") { isLogged = true; init(); } else { toast('PIN incorrect (Indice: 1234)'); } };
+function init() { chargerDonnees(); }
+
+function renderView(v) {
+  currentView = v;
+  $('#fab').style.display = 'none';
+
+  if (v === 'dashboard') {
+    $('#header-title').textContent = "Tableau de bord";
+    $('#fab').style.display = 'flex';
+    var totalCreances = 0;
+    for (var i=0; i<db.creances.length; i++) { if (db.creances[i].statut !== 'payee') totalCreances += (db.creances[i].montant - db.creances[i].montant_paye); }
+    $('#app').innerHTML = '<div class="card" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none;"><div style="opacity:0.9;font-size:15px;font-weight:500;">Total des créances en cours</div><div class="big-stat" style="color:white;margin-top:8px;">' + fmt(totalCreances) + ' <span style="font-size:24px;">FCFA</span></div></div><div class="row"><div class="card" style="flex:1;text-align:center;"><div style="font-size:24px;margin-bottom:8px;">🛒</div><div style="font-size:18px;font-weight:800;">' + db.commandes.length + '</div><div class="item-sub">Commandes</div></div><div class="card" style="flex:1;text-align:center;"><div style="font-size:24px;margin-bottom:8px;">💰</div><div style="font-size:18px;font-weight:800;color:var(--danger);">' + db.creances.length + '</div><div class="item-sub">Dettes</div></div></div><div class="card"><button class="btn btn-outline" onclick="openCommandeModal()">+ Nouvelle Vente</button></div><div class="card"><a href="?mode=client" class="btn btn-info" style="text-decoration:none;">🔗 Voir la Boutique Client</a></div>' + nav('dashboard');
+  }
+
+  if (v === 'produits') {
+    $('#header-title').textContent = "Produits & Stock";
+    $('#fab').style.display = 'flex';
+    var htmlP = '<div class="card" style="padding:0; overflow:hidden;"><table><thead><tr><th>Produit</th><th class="text-right">Prix</th><th class="text-right">Stock</th></tr></thead><tbody>';
+    for (var j=0; j<db.produits.length; j++) { var p = db.produits[j], stockClass = p.stock <= 5 ? 'text-danger' : 'text-ok'; htmlP += '<tr style="cursor:pointer" onclick="openProduitModal(' + p.id + ')"><td style="padding-left:16px;"><div style="font-weight:700;">' + p.nom + '</div></td><td class="text-right"><div style="font-weight:700;">' + fmt(p.prix_gros) + '</div></td><td class="text-right ' + stockClass + '" style="font-weight:800;">' + p.stock + '</td></tr>'; }
+    htmlP += '</tbody></table></div>' + nav('produits'); $('#app').innerHTML = htmlP;
+  }
+
+  if (v === 'commandes') {
+    $('#header-title').textContent = "Ventes";
+    var htmlCmd = '<div class="card">';
+    for (var l=0; l<db.commandes.length; l++) { var cmd = db.commandes[l]; htmlCmd += '<div class="item"><div><div class="item-title">Client #' + (cmd.client_id || 'En ligne') + '</div><div class="item-sub">' + cmd.date + '</div></div><div style="font-weight:800;">' + fmt(cmd.total) + ' F</div></div>'; }
+    htmlCmd += '</div>' + nav('commandes'); $('#app').innerHTML = htmlCmd;
+  }
+  
+  if (v === 'plus') {
+    $('#header-title').textContent = "Menu";
+    $('#app').innerHTML = '<div class="card"><div class="item"><a href="?mode=client" style="text-decoration:none; color:var(--primary); font-weight:800; font-size:16px;">🔗 Ouvrir la boutique Client</a></div></div>' + nav('plus');
+  }
+}
+
+function nav(active) {
+  var tabs = [['dashboard','📊','Accueil'],['commandes','🛒','Ventes'],['produits','📦','Produits'],['plus','⚙️','Menu']];
+  var html = '<nav class="nav">';
+  for (var i=0; i<tabs.length; i++) { var v = tabs[i][0], ic = tabs[i][1], l = tabs[i][2]; html += '<a href="#" class="' + (active===v?'active':'') + '" onclick="navTo(\'' + v + '\');return false"><span>' + ic + '</span>' + l + '</a>'; }
+  return html + '</nav>';
+}
+window.navTo = function(v) { renderView(v); };
+window.handleFab = function() { if (currentView === 'produits') openProduitModal(); };
+
+// MODALS DE BASE POUR LE GROSSISTE
+function openProduitModal(id) {
+  var p = null; if(id) { for(var i=0; i<db.produits.length; i++){ if(db.produits[i].id === id) p = db.produits[i]; } }
+  var title = p ? "Modifier Produit" : "Nouveau Produit", valNom = p ? p.nom : "", valAchat = p ? (p.prix_achat || 0) : "", valVente = p ? p.prix_gros : "", valStock = p ? p.stock : "";
+  var html = '<label>Nom</label><input id="m_nom" value="' + valNom + '"><div class="row"><div style="flex:1;"><label>Prix d\'achat</label><input id="m_achat" type="number" value="' + valAchat + '"></div><div style="flex:1;"><label>Prix de vente</label><input id="m_vente" type="number" value="' + valVente + '"></div></div><label>Stock</label><input id="m_stock" type="number" value="' + valStock + '"><button class="btn" onclick="saveProduit(' + (p?p.id:'null') + ')">' + (p?'Enregistrer':'Créer') + '</button>';
+  openModal(title, html);
+}
+window.saveProduit = async function(id) {
+  var nom = $('#m_nom').value, achat = Number($('#m_achat').value) || 0, vente = Number($('#m_vente').value) || 0, stock = Number($('#m_stock').value) || 0;
+  if(id) { await supabaseClient.from('produits').update({nom: nom, prix_achat: achat, prix_gros: vente, stock: stock}).eq('id', id); } 
+  else { await supabaseClient.from('produits').insert([{nom: nom, prix_achat: achat, prix_gros: vente, stock: stock}]); }
+  closeModal(); chargerDonnees(); toast('Enregistré ✓');
+};
+
+function openCommandeModal() { toast("Fonction de vente manuelle (à coder)"); }
 
 // Lancement
-chargerDonnees();
+init();
 </script>
 </body>
 </html>
