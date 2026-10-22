@@ -137,7 +137,7 @@ async function chargerDonnees() {
       if (!isLogged) { renderLogin(); return; }
       renderView(currentView);
     }
- } catch (err) {
+} catch (err) {
     // AFFICHE L'ERREUR RÉELLE SUR L'ÉCRAN
     $('#app').innerHTML = "<div style='color:white; background:#ef4444; padding:20px; border-radius:10px;'><h2 style='margin-bottom:10px;'>Erreur de connexion</h2><p style='word-break:break-all; font-size:14px;'>" + err.message + "</p><p style='margin-top:10px; font-size:12px;'>Vérifiez vos clés Supabase (URL et Anon Key).</p></div>";
   }
