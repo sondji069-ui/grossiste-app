@@ -6,19 +6,19 @@
 <title>Grossiste App</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  :root { --primary: #10b981; --primary-dark: #059669; --primary-light: #ecfdf5; --bg: #f8fafc; --card: #fff; --border: #e2e8f0; --text: #1e293b; --muted: #64748b; --danger: #ef4444; --warn: #f59e0b; --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  :root { --primary: #10b981; --primary-dark: #059669; --primary-light: #ecfdf5; --bg: #f8fafc; --card: #fff; --border: #e2e8f0; --text: #1e293b; --muted: #64748b; --danger: #ef4444; --warn: #f59e0b; --info: #3b82f6; }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   body { background: var(--bg); color: var(--text); padding-bottom: 90px; }
   .header { background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); padding: 16px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .header h1 { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+  .header h1 { font-size: 22px; font-weight: 800; color: var(--text); }
+  .header-icon { font-size: 24px; cursor: pointer; color: var(--muted); }
   .container { max-width: 640px; margin: 0 auto; padding: 16px; }
-  .card { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid var(--border); margin-bottom: 16px; box-shadow: var(--shadow); }
+  .card { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid var(--border); margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
   .row { display: flex; gap: 12px; }
-  .btn { display: flex; justify-content: center; align-items: center; padding: 16px; border-radius: 14px; border: none; background: var(--primary); color: white; font-size: 16px; font-weight: 700; width: 100%; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+  .btn { display: flex; justify-content: center; align-items: center; padding: 16px; border-radius: 14px; border: none; background: var(--primary); color: white; font-size: 16px; font-weight: 700; width: 100%; cursor: pointer; transition: all 0.2s; }
   .btn:active { transform: scale(0.98); }
-  .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); box-shadow: none; }
-  .btn-danger { background: var(--danger); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
-  .btn-info { background: #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); }
+  .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+  .btn-danger { background: var(--danger); }
   .fab { position: fixed; bottom: 100px; right: 24px; width: 64px; height: 64px; background: var(--primary); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 32px; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4); cursor: pointer; z-index: 50; transition: transform 0.2s; }
   .fab:active { transform: scale(0.9) rotate(90deg); }
   .nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 10; }
@@ -27,24 +27,22 @@
   .nav a span { display: block; font-size: 22px; margin-bottom: 4px; }
   .item { padding: 16px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
   .item:last-child { border-bottom: none; }
-  .item-title { font-weight: 700; font-size: 16px; color: var(--text); }
+  .item-title { font-weight: 700; font-size: 16px; }
   .item-sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
   .big-stat { font-size: 36px; font-weight: 900; color: var(--text); letter-spacing: -1.5px; }
   .text-danger { color: var(--danger); font-weight: 700; }
   .text-warn { color: var(--warn); font-weight: 700; }
   .text-ok { color: var(--primary); font-weight: 700; }
-  .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
-  .empty span { font-size: 48px; display: block; margin-bottom: 16px; opacity: 0.5; }
-  input, select { width: 100%; padding: 16px; border: 2px solid var(--border); border-radius: 14px; margin-bottom: 16px; font-size: 16px; background: #f8fafc; font-weight: 500; }
+  input, select { width: 100%; padding: 16px; border: 2px solid var(--border); border-radius: 14px; margin-bottom: 16px; font-size: 16px; background: #f8fafc; }
   input:focus, select:focus { outline: none; border-color: var(--primary); background: white; }
   label { font-size: 14px; color: var(--muted); margin-bottom: 8px; display: block; font-weight: 600; }
-  .modal-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; display: flex; align-items: flex-end; backdrop-filter: blur(4px); }
+  .modal-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s; display: flex; align-items: flex-end; backdrop-filter: blur(4px); }
   .modal-bg.active { opacity: 1; pointer-events: auto; }
   .modal { background: white; width: 100%; max-width: 640px; margin: 0 auto; border-radius: 28px 28px 0 0; padding: 24px; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 90vh; overflow-y: auto; }
   .modal-bg.active .modal { transform: translateY(0); }
   .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
   .modal-header h2 { font-size: 22px; font-weight: 800; }
-  .close-btn { background: var(--bg); border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; color: var(--muted); cursor: pointer; display: flex; justify-content: center; align-items: center; }
+  .close-btn { background: var(--bg); border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; color: var(--muted); cursor: pointer; }
   .panier-liste { background: var(--bg); border-radius: 16px; padding: 16px; margin-bottom: 20px; }
   .panier-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
   .panier-item:last-child { border-bottom: none; }
@@ -55,16 +53,13 @@
   th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid var(--border); font-size: 14px; }
   th { color: var(--muted); font-size: 12px; text-transform: uppercase; font-weight: 700; }
   .text-right { text-align: right; }
-  .search-bar { margin-bottom: 16px; position: relative; }
-  .search-bar input { padding-left: 44px; margin-bottom: 0; border-radius: 20px; }
-  .search-icon { position: absolute; left: 16px; top: 16px; font-size: 18px; color: var(--muted); }
   .alert-box { background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); padding: 16px; border-radius: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; font-weight: 600; }
-  .toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-30px); background: var(--text); color: white; padding: 14px 28px; border-radius: 30px; font-size: 15px; font-weight: 600; z-index: 200; opacity: 0; transition: all 0.3s; pointer-events: none; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+  .toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-30px); background: var(--text); color: white; padding: 14px 28px; border-radius: 30px; font-size: 15px; font-weight: 600; z-index: 200; opacity: 0; transition: all 0.3s; pointer-events: none; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .chart-container { display: flex; align-items: flex-end; justify-content: space-between; height: 150px; padding-top: 20px; border-bottom: 2px solid var(--border); margin-bottom: 8px; }
   .chart-bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; margin: 0 4px; }
-  .chart-bar { width: 100%; background: var(--primary); border-radius: 6px 6px 0 0; min-height: 2px; transition: height 0.5s ease; position: relative; }
-  .chart-value { font-size: 10px; font-weight: 700; color: var(--primary); margin-bottom: 4px; white-space: nowrap; }
+  .chart-bar { width: 100%; background: var(--primary); border-radius: 6px 6px 0 0; min-height: 2px; }
+  .chart-value { font-size: 10px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
   .chart-label { font-size: 11px; color: var(--muted); margin-top: 8px; font-weight: 600; }
 </style>
 </head>
@@ -72,6 +67,7 @@
 
 <div class="header">
   <h1 id="header-title">Chargement...</h1>
+  <div class="header-icon" onclick="openMenu()">⚙️</div>
 </div>
 
 <div id="app" class="container">Initialisation...</div>
@@ -88,23 +84,23 @@
 // 1. CONFIGURATION SUPABASE
 // ==========================================
 const SUPABASE_URL = "https://cmaxgwjlhhdcerwoengs.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtYXhnd2psaGhkY2Vyd29lbmdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2OTYzMDEsImV4cCI6MjEwODI3MjMwMX0.rtT9WrTwUMW5-xeOm-UsjVCWiqbMv9cNTKENbkidcEk"; // <--- REMPLACEZ CE TEXTE PAR VOTRE CLÉ
-
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtYXhnd2psaGhkY2Vyd29lbmdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2OTYzMDEsImV4cCI6MjEwODI3MjMwMX0.rtT9WrTwUMW5-xeOm-UsjVCWiqbMv9cNTKENbkidcEk"; 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+window.onerror = function(msg) { document.getElementById('app').innerHTML = "<div style='color:white; background:#ef4444; padding:20px; border-radius:10px;'><h2>Erreur de code</h2><p>" + msg + "</p></div>"; return true; };
+
 // ==========================================
-// 2. GESTION DES DONNÉES
+// 2. VARIABLES GLOBALES
 // ==========================================
 var db = { clients: [], produits: [], commandes: [], creances: [], depenses: [] };
 var isLogged = false;
 var currentView = 'dashboard';
 var panierActuel = []; 
-var commandeEnCoursEdition = null; 
 var isClientMode = window.location.search.includes('mode=client');
 
-var $ = function(s) { return document.querySelector(s); };
-var fmt = function(n) { return Number(n || 0).toLocaleString('fr-FR'); };
-function toast(m) { var t = $('#toast'); t.textContent = m; t.className = 'toast show'; setTimeout(function() { t.className = 'toast'; }, 3000); }
+const $ = s => document.querySelector(s);
+const fmt = n => Number(n || 0).toLocaleString('fr-FR');
+function toast(m) { var t = $('#toast'); t.textContent = m; t.className = 'toast show'; setTimeout(() => t.className = 'toast', 3000); }
 
 function openModal(title, contentHTML) {
   $('#modal-content').innerHTML = '<div class="modal-header"><h2>' + title + '</h2><button class="close-btn" onclick="closeModal()">✕</button></div>' + contentHTML;
@@ -115,6 +111,9 @@ function closeModal(e) {
   $('#modal-bg').classList.remove('active');
 }
 
+// ==========================================
+// 3. CHARGEMENT DES DONNÉES
+// ==========================================
 async function chargerDonnees() {
   try {
     const { data: clients } = await supabaseClient.from('clients').select('*').order('nom');
@@ -129,9 +128,8 @@ async function chargerDonnees() {
     db.creances = creances || [];
     db.depenses = depenses || [];
     
-    if (isClientMode) {
-      renderClientView();
-    } else {
+    if (isClientMode) renderClientView();
+    else {
       if (!isLogged) { renderLogin(); return; }
       renderView(currentView);
     }
@@ -141,151 +139,441 @@ async function chargerDonnees() {
 }
 
 // ==========================================
-// 3. MODE CLIENT
+// 4. LE MENU (BOUTON ENGRENAGE)
 // ==========================================
-function renderClientView() {
-  $('#header-title').textContent = "Boutique en ligne";
-  $('#fab').style.display = 'flex';
-  
-  var html = '<div class="card" style="background:var(--primary); color:white; margin-bottom:20px;"><h2>Bienvenue !</h2><p style="margin-top:8px; opacity:0.9;">Commandez vos produits en gros directement.</p></div>';
-  html += '<label>Votre nom / Boutique</label><input id="client_nom" placeholder="Ex: Boutique Ndiaye">';
-  html += '<label>Votre numéro (WhatsApp)</label><input id="client_tel" type="tel" placeholder="Ex: 771234567">';
-  html += '<h3 style="margin-top:24px; margin-bottom:12px;">Catalogue</h3><div class="card" style="padding:0; overflow:hidden;"><table><thead><tr><th>Produit</th><th class="text-right">Prix</th><th></th></tr></thead><tbody>';
-  
-  for(var i=0; i<db.produits.length; i++) {
-    var p = db.produits[i];
-    var dispo = p.stock > 0;
-    html += '<tr><td><div style="font-weight:700;">' + p.nom + '</div><div class="item-sub">' + (dispo ? 'En stock' : '<span class="text-danger">Rupture</span>') + '</div></td><td class="text-right" style="font-weight:800;">' + fmt(p.prix_gros) + ' F</td><td class="text-right">' + (dispo ? '<button class="btn btn-sm btn-outline" style="padding:8px; width:auto;" onclick="ajouterAuPanierClient(' + p.id + ')">Ajouter</button>' : '') + '</td></tr>';
-  }
-  html += '</tbody></table></div>';
-  html += '<div id="panier_client_zone"></div>';
-  $('#app').innerHTML = html;
-  majPanierClientUI();
-}
-
-window.ajouterAuPanierClient = function(produit_id) {
-  var prod = null;
-  for(var i=0; i<db.produits.length; i++){ if(db.produits[i].id === produit_id) prod = db.produits[i]; }
-  if(!prod) return;
-  var itemExistant = panierActuel.find(function(item) { return item.produit_id === produit_id; });
-  if(itemExistant) {
-    if(itemExistant.quantite >= prod.stock) return toast("Stock maximum atteint");
-    itemExistant.quantite++;
-  } else {
-    panierActuel.push({ produit_id: prod.id, nom: prod.nom, prix_unitaire: prod.prix_gros, quantite: 1 });
-  }
-  toast("Ajouté au panier !");
-  majPanierClientUI();
-};
-
-function majPanierClientUI() {
-  var zone = $('#panier_client_zone');
-  if(!zone) return;
-  if(panierActuel.length === 0) { zone.innerHTML = '<div class="card" style="text-align:center; color:var(--muted);">Votre panier est vide</div>'; return; }
-  var total = 0;
-  var html = '<div class="card"><h3 style="margin-bottom:12px;">Votre Panier</h3>';
-  for(var i=0; i<panierActuel.length; i++) {
-    var item = panierActuel[i], st = item.quantite * item.prix_unitaire; total += st;
-    html += '<div class="panier-item"><div><div class="panier-item-title">' + item.nom + '</div><div class="item-sub">' + item.quantite + ' x ' + fmt(item.prix_unitaire) + ' F</div></div><div style="display:flex; align-items:center; gap:12px;"><div class="panier-item-prix">' + fmt(st) + ' F</div><button class="btn-remove" onclick="retirerDuPanierClient(' + i + ')">✕</button></div></div>';
-  }
-  html += '<div style="display:flex; justify-content:space-between; margin-top:16px; font-size:20px; font-weight:900;"><span>Total</span><span>' + fmt(total) + ' F</span></div>';
-  html += '<button class="btn" style="margin-top:16px;" onclick="validerCommandeClient()">Commander (Via WhatsApp)</button></div>';
-  zone.innerHTML = html;
-}
-window.retirerDuPanierClient = function(index) { panierActuel.splice(index, 1); majPanierClientUI(); };
-
-window.validerCommandeClient = async function() {
-  var nom = $('#client_nom').value, tel = $('#client_tel').value;
-  if(!nom || !tel) return toast("Entrez votre nom et numéro");
-  if(panierActuel.length === 0) return toast("Panier vide");
-  
-  var total = 0; for(var i=0; i<panierActuel.length; i++) total += (panierActuel[i].quantite * panierActuel[i].prix_unitaire);
-  
-  var { data: cmdData, error: cmdErr } = await supabaseClient.from('commandes').insert([{ client_id: null, items: panierActuel, total: total, acompte: 0, reste: total, date: new Date().toLocaleDateString('fr-FR') }]).select();
-  if (cmdErr) return toast("Erreur : " + cmdErr.message);
-  
-  if(cmdData && cmdData[0]) {
-    await supabaseClient.from('creances').insert([{ commande_id: cmdData[0].id, client_id: null, montant: total, montant_paye: 0, date_echeance: new Date().toLocaleDateString('fr-FR'), statut: 'impayee' }]);
-  }
-
-  var msg = "🛒 *NOUVELLE COMMANDE*\n👤 " + nom + "\n📞 " + tel + "\n------------------------\n";
-  for(var j=0; j<panierActuel.length; j++) { msg += "▪️ " + panierActuel[j].quantite + " x " + panierActuel[j].nom + "\n"; }
-  msg += "------------------------\n*TOTAL : " + fmt(total) + " FCFA*\n\n(Commande enregistrée)";
-  
-  window.open('https://wa.me/221770000000?text=' + encodeURIComponent(msg), '_blank'); // Remplacez ce numéro par le vôtre
-  panierActuel = []; toast("Commande envoyée !"); majPanierClientUI();
+window.openMenu = function() {
+  if (isClientMode) return;
+  var nomBoutique = localStorage.getItem('grossiste_nom') || 'Mon Commerce';
+  var html = `
+    <div style="text-align:center; margin-bottom:20px;"><h3 style="font-size:20px; font-weight:800;">${nomBoutique}</h3></div>
+    <div class="card" style="padding:0; margin:0;">
+      <div class="item" style="padding:20px 16px; cursor:pointer;" onclick="closeModal(); renderView('stats')"><div style="display:flex; align-items:center; gap:16px;"><span style="font-size:24px;">📊</span> <span class="item-title">Bénéfices & Stats</span></div><div style="font-size:20px;">›</div></div>
+      <div class="item" style="padding:20px 16px; cursor:pointer;" onclick="closeModal(); renderView('depenses')"><div style="display:flex; align-items:center; gap:16px;"><span style="font-size:24px;">💸</span> <span class="item-title">Mes Dépenses</span></div><div style="font-size:20px;">›</div></div>
+      <div class="item" style="padding:20px 16px; cursor:pointer;" onclick="closeModal(); openSettings()"><div style="display:flex; align-items:center; gap:16px;"><span style="font-size:24px;">⚙️</span> <span class="item-title">Paramètres</span></div><div style="font-size:20px;">›</div></div>
+      <div class="item" style="padding:20px 16px; cursor:pointer;" onclick="window.location.href = window.location.pathname"><div style="display:flex; align-items:center; gap:16px;"><span style="font-size:24px;">🚪</span> <span class="item-title text-danger">Se déconnecter</span></div></div>
+    </div>`;
+  openModal("Menu Principal", html);
 };
 
 // ==========================================
-// 4. MODE GROSSISTE
+// 5. VUES GROSSISTE
 // ==========================================
 function renderLogin() {
   $('#header-title').textContent = "Connexion";
-  $('#app').innerHTML = '<div class="card" style="margin-top:40px;"><h2 style="margin-bottom:24px;font-size:28px;font-weight:800;">Entrez votre code</h2><label>Code PIN</label><input id="pin" type="tel" placeholder="••••"><button class="btn" onclick="doLogin()">Se connecter</button><div style="text-align:center; margin-top:20px;"><a href="?mode=client" style="color:var(--primary); font-weight:600; text-decoration:none;">Je suis un client (Boutique)</a></div></div>';
+  $('#app').innerHTML = `<div class="card" style="margin-top:40px;">
+    <h2 style="margin-bottom:24px;font-size:28px;font-weight:800;">Entrez votre code</h2>
+    <label>Code PIN</label><input id="pin" type="tel" placeholder="••••" maxlength="4">
+    <button class="btn" onclick="doLogin()">Se connecter</button>
+    <div style="text-align:center; margin-top:24px;"><button class="btn" style="background:none; color:var(--primary); box-shadow:none; font-weight:700;" onclick="window.location.href = window.location.pathname + '?mode=client'">Je suis un client (Boutique)</button></div>
+  </div>`;
 }
-window.doLogin = function() { if ($('#pin').value === "1234") { isLogged = true; init(); } else { toast('PIN incorrect (Indice: 1234)'); } };
-function init() { chargerDonnees(); }
+window.doLogin = () => { 
+  var vraiPin = localStorage.getItem('grossiste_pin') || '1234';
+  if ($('#pin').value === vraiPin) { isLogged = true; chargerDonnees(); } else { toast('PIN incorrect'); } 
+};
 
 function renderView(v) {
   currentView = v;
   $('#fab').style.display = 'none';
 
   if (v === 'dashboard') {
-    $('#header-title').textContent = "Tableau de bord";
+    $('#header-title').textContent = localStorage.getItem('grossiste_nom') || "Accueil";
     $('#fab').style.display = 'flex';
-    var totalCreances = 0;
-    for (var i=0; i<db.creances.length; i++) { if (db.creances[i].statut !== 'payee') totalCreances += (db.creances[i].montant - db.creances[i].montant_paye); }
-    $('#app').innerHTML = '<div class="card" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none;"><div style="opacity:0.9;font-size:15px;font-weight:500;">Total des créances en cours</div><div class="big-stat" style="color:white;margin-top:8px;">' + fmt(totalCreances) + ' <span style="font-size:24px;">FCFA</span></div></div><div class="row"><div class="card" style="flex:1;text-align:center;"><div style="font-size:24px;margin-bottom:8px;">🛒</div><div style="font-size:18px;font-weight:800;">' + db.commandes.length + '</div><div class="item-sub">Commandes</div></div><div class="card" style="flex:1;text-align:center;"><div style="font-size:24px;margin-bottom:8px;">💰</div><div style="font-size:18px;font-weight:800;color:var(--danger);">' + db.creances.length + '</div><div class="item-sub">Dettes</div></div></div><div class="card"><button class="btn btn-outline" onclick="openCommandeModal()">+ Nouvelle Vente</button></div><div class="card"><a href="?mode=client" class="btn btn-info" style="text-decoration:none;">🔗 Voir la Boutique Client</a></div>' + nav('dashboard');
+    var totalCreances = 0; db.creances.forEach(c => { if (c.statut !== 'payee') totalCreances += (c.montant - c.montant_paye); });
+    $('#app').innerHTML = `<div class="card" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white;"><div style="opacity:0.9;font-size:15px;">Total Créances</div><div class="big-stat" style="color:white;">${fmt(totalCreances)} <span style="font-size:24px;">FCFA</span></div></div>
+    <div class="row"><div class="card" style="flex:1;text-align:center;"><div style="font-size:24px;">🛒</div><div style="font-size:18px;font-weight:800;">${db.commandes.length}</div><div class="item-sub">Ventes</div></div><div class="card" style="flex:1;text-align:center;"><div style="font-size:24px;">💰</div><div style="font-size:18px;font-weight:800;color:var(--danger);">${db.creances.length}</div><div class="item-sub">Dettes</div></div></div>
+    <div class="card"><button class="btn btn-outline" onclick="openCommandeModal()">+ Nouvelle Vente</button></div>` + nav('dashboard');
+  }
+
+  if (v === 'clients') {
+    $('#header-title').textContent = "Clients";
+    $('#fab').style.display = 'flex';
+    var html = '<div class="card">';
+    if (db.clients.length === 0) html += '<div style="text-align:center; color:var(--muted);">Aucun client.</div>';
+    db.clients.forEach(c => {
+      var dette = 0; db.creances.forEach(cr => { if(cr.client_id === c.id && cr.statut !== 'payee') dette += (cr.montant - cr.montant_paye); });
+      html += `<div class="item" style="cursor:pointer;" onclick="voirDetailClient(${c.id})">
+        <div><div class="item-title">${c.nom}</div><div class="item-sub">${c.telephone || ''}</div>${dette > 0 ? `<div class="text-danger" style="font-size:13px; margin-top:4px;">Dette: ${fmt(dette)} F</div>` : ''}</div>
+        <div style="font-size:20px; color:var(--muted);">›</div>
+      </div>`;
+    });
+    html += '</div>' + nav('dashboard');
+    $('#app').innerHTML = html;
   }
 
   if (v === 'produits') {
-    $('#header-title').textContent = "Produits & Stock";
+    $('#header-title').textContent = "Produits";
     $('#fab').style.display = 'flex';
     var htmlP = '<div class="card" style="padding:0; overflow:hidden;"><table><thead><tr><th>Produit</th><th class="text-right">Prix</th><th class="text-right">Stock</th></tr></thead><tbody>';
-    for (var j=0; j<db.produits.length; j++) { var p = db.produits[j], stockClass = p.stock <= 5 ? 'text-danger' : 'text-ok'; htmlP += '<tr style="cursor:pointer" onclick="openProduitModal(' + p.id + ')"><td style="padding-left:16px;"><div style="font-weight:700;">' + p.nom + '</div></td><td class="text-right"><div style="font-weight:700;">' + fmt(p.prix_gros) + '</div></td><td class="text-right ' + stockClass + '" style="font-weight:800;">' + p.stock + '</td></tr>'; }
-    htmlP += '</tbody></table></div>' + nav('produits'); $('#app').innerHTML = htmlP;
+    db.produits.forEach(p => { htmlP += `<tr onclick="openProduitModal(${p.id})"><td style="padding-left:16px;"><div style="font-weight:700;">${p.nom}</div><div class="item-sub">Marge: ${fmt(p.prix_gros - (p.prix_achat || 0))} F</div></td><td class="text-right" style="font-weight:700;">${fmt(p.prix_gros)} F</td><td class="text-right ${p.stock <= 5 ? 'text-danger' : 'text-ok'}" style="font-weight:800;">${p.stock}</td></tr>`; });
+    htmlP += '</tbody></table></div>' + nav('dashboard');
+    $('#app').innerHTML = htmlP;
+  }
+
+  if (v === 'creances') {
+    $('#header-title').textContent = "Créances";
+    var htmlC = '<div class="card">';
+    if (db.creances.filter(c => c.statut !== 'payee').length === 0) htmlC += '<div style="text-align:center; color:var(--muted);">Aucune dette 🎉</div>';
+    db.creances.forEach(cr => {
+      if(cr.statut === 'payee') return;
+      var cli = db.clients.find(c => c.id === cr.client_id);
+      var nom = cli ? cli.nom : 'Client supprimé';
+      var reste = cr.montant - cr.montant_paye;
+      htmlC += `<div class="item"><div><div class="item-title">${nom}</div><div class="item-sub">Éch: ${cr.date_echeance}</div><div class="text-danger">${fmt(reste)} FCFA</div></div><button class="btn" style="width:auto; padding:8px 16px;" onclick="openPaiementModal(${cr.id}, ${reste})">Encaisser</button></div>`;
+    });
+    htmlC += '</div>' + nav('dashboard');
+    $('#app').innerHTML = htmlC;
+  }
+
+  if (v === 'depenses') {
+    $('#header-title').textContent = "Dépenses";
+    $('#fab').style.display = 'flex';
+    var totalDep = db.depenses.reduce((s, d) => s + d.montant, 0);
+    var htmlD = `<div class="card" style="background:var(--bg); border:1px solid var(--border); text-align:center;"><div class="item-sub">Total des dépenses</div><div class="big-stat text-danger">${fmt(totalDep)} <span style="font-size:20px;">FCFA</span></div></div><div class="card">`;
+    if (db.depenses.length === 0) htmlD += '<div style="text-align:center; color:var(--muted);">Aucune dépense.</div>';
+    db.depenses.forEach(d => { htmlD += `<div class="item"><div><div class="item-title">${d.motif}</div><div class="item-sub">${d.date}</div></div><div class="text-danger" style="font-weight:800;">-${fmt(d.montant)} F</div></div>`; });
+    htmlD += '</div>' + nav('dashboard');
+    $('#app').innerHTML = htmlD;
+  }
+
+  if (v === 'stats') {
+    $('#header-title').textContent = "Bénéfices";
+    var ca = 0, totalDep = 0, margeBrute = 0;
+    db.commandes.forEach(cmd => { ca += cmd.total; });
+    db.commandes.forEach(cmd => { if(cmd.items) cmd.items.forEach(item => { var prod = db.produits.find(p => p.id === item.produit_id); var pa = prod ? (prod.prix_achat || 0) : 0; margeBrute += (item.prix_unitaire - pa) * item.quantite; }); });
+    db.depenses.forEach(d => { totalDep += d.montant; });
+    var beneficeNet = margeBrute - totalDep;
+    var jours = [], ventes = [], maxVente = 1;
+    for (var d=6; d>=0; d--) { var date = new Date(); date.setDate(date.getDate() - d); var dateStr = date.toLocaleDateString('fr-FR'); jours.push(dateStr.slice(0,5)); var totalJour = 0; db.commandes.forEach(c => { if(c.date === dateStr) totalJour += c.total; }); ventes.push(totalJour); if(totalJour > maxVente) maxVente = totalJour; }
+    var chartHtml = '<div class="chart-container">';
+    for(var h=0; h<7; h++) { var hauteurPct = (ventes[h] / maxVente) * 100; if (ventes[h] === 0) hauteurPct = 0; var affVal = ventes[h] > 0 ? (ventes[h]/1000).toFixed(0) + 'k' : ''; chartHtml += `<div class="chart-bar-wrapper"><div class="chart-value">${affVal}</div><div class="chart-bar" style="height: ${hauteurPct}%;"></div><div class="chart-label">${jours[h]}</div></div>`; }
+    chartHtml += '</div>';
+    $('#app').innerHTML = `<div class="card" style="background: linear-gradient(135deg, var(--text), #334155); color: white;"><div style="opacity:0.8;font-size:14px;">Bénéfice Net Estimé</div><div class="big-stat" style="color:${beneficeNet >= 0 ? 'var(--primary)' : 'var(--danger)'};margin-top:8px;">${fmt(beneficeNet)} <span style="font-size:20px;">FCFA</span></div></div><div class="row"><div class="card" style="flex:1;text-align:center;"><div class="item-sub">Chiffre d'Affaires</div><div style="font-size:18px;font-weight:800;">${fmt(ca)} F</div></div><div class="card" style="flex:1;text-align:center;"><div class="item-sub">Dépenses</div><div class="text-danger" style="font-size:18px;font-weight:800;">${fmt(totalDep)} F</div></div></div><div class="card" style="padding:16px;"><div class="item-sub" style="margin-bottom:12px; text-align:center;">Ventes des 7 derniers jours</div>${chartHtml}</div>` + nav('dashboard');
   }
 
   if (v === 'commandes') {
-    $('#header-title').textContent = "Ventes";
+    $('#header-title').textContent = "Historique des Ventes";
     var htmlCmd = '<div class="card">';
-    for (var l=0; l<db.commandes.length; l++) { var cmd = db.commandes[l]; htmlCmd += '<div class="item"><div><div class="item-title">Client #' + (cmd.client_id || 'En ligne') + '</div><div class="item-sub">' + cmd.date + '</div></div><div style="font-weight:800;">' + fmt(cmd.total) + ' F</div></div>'; }
-    htmlCmd += '</div>' + nav('commandes'); $('#app').innerHTML = htmlCmd;
-  }
-  
-  if (v === 'plus') {
-    $('#header-title').textContent = "Menu";
-    $('#app').innerHTML = '<div class="card"><div class="item"><a href="?mode=client" style="text-decoration:none; color:var(--primary); font-weight:800; font-size:16px;">🔗 Ouvrir la boutique Client</a></div></div>' + nav('plus');
+    if (db.commandes.length === 0) htmlCmd += '<div style="text-align:center; color:var(--muted);">Aucune vente.</div>';
+    else {
+      db.commandes.forEach(cmd => {
+        var cli = db.clients.find(c => c.id === cmd.client_id);
+        var nomCli = cli ? cli.nom : 'Client en ligne';
+        htmlCmd += `<div class="item" style="cursor:pointer;" onclick="voirDetailVente(${cmd.id})"><div><div class="item-title">${nomCli}</div><div class="item-sub">${cmd.date} · ${cmd.reste > 0 ? '<span class="text-warn">À crédit</span>' : '<span class="text-ok">Payé</span>'}</div></div><div style="display:flex; align-items:center; gap:8px;"><div style="font-weight:800; font-size:16px;">${fmt(cmd.total)} F</div><div style="font-size:20px; color:var(--muted);">›</div></div></div>`;
+      });
+    }
+    htmlCmd += '</div>' + nav('dashboard');
+    $('#app').innerHTML = htmlCmd;
   }
 }
 
 function nav(active) {
-  var tabs = [['dashboard','📊','Accueil'],['commandes','🛒','Ventes'],['produits','📦','Produits'],['plus','⚙️','Menu']];
+  var tabs = [['dashboard','📊','Accueil'],['clients','👥','Clients'],['produits','📦','Produits'],['creances','💰','Créances'],['commandes','🛒','Ventes']];
   var html = '<nav class="nav">';
-  for (var i=0; i<tabs.length; i++) { var v = tabs[i][0], ic = tabs[i][1], l = tabs[i][2]; html += '<a href="#" class="' + (active===v?'active':'') + '" onclick="navTo(\'' + v + '\');return false"><span>' + ic + '</span>' + l + '</a>'; }
+  tabs.forEach(t => { html += `<a href="#" class="${active===t[0]?'active':''}" onclick="renderView('${t[0]}');return false"><span>${t[1]}</span>${t[2]}</a>`; });
   return html + '</nav>';
 }
-window.navTo = function(v) { renderView(v); };
-window.handleFab = function() { if (currentView === 'produits') openProduitModal(); };
 
-// MODALS DE BASE POUR LE GROSSISTE
+// ==========================================
+// 6. ACTIONS & GESTION
+// ==========================================
+window.handleFab = () => {
+  if (currentView === 'clients') openModal("Nouveau Client", `<label>Nom</label><input id="c_nom"><label>Téléphone</label><input id="c_tel" type="tel"><button class="btn" style="margin-top:16px;" onclick="saveClient()">Enregistrer</button>`);
+  if (currentView === 'produits') openProduitModal();
+  if (currentView === 'dashboard') openCommandeModal();
+  if (currentView === 'depenses') openDepenseModal();
+};
+
+window.saveClient = async () => {
+  var nom = $('#c_nom').value;
+  if(!nom) return toast("Nom obligatoire");
+  let res = await supabaseClient.from('clients').insert([{nom: nom, telephone: $('#c_tel').value}]).select();
+  if(res.error) return alert("Erreur : " + res.error.message);
+  closeModal(); chargerDonnees(); toast('Client ajouté ✓');
+};
+
+window.openDepenseModal = () => {
+  openModal("Nouvelle Dépense", `<label>Motif</label><select id="d_motif"><option>Transport</option><option>Loyer</option><option>Électricité</option><option>Salaires</option><option>Imprévu</option></select><label>Montant</label><input id="d_montant" type="number"><button class="btn" style="margin-top:16px;" onclick="saveDepense()">Enregistrer</button>`);
+};
+window.saveDepense = async () => {
+  var motif = $('#d_motif').value, montant = Number($('#d_montant').value);
+  if(!montant) return toast("Montant invalide");
+  let res = await supabaseClient.from('depenses').insert([{motif, montant, date: new Date().toLocaleDateString('fr-FR')}]).select();
+  if(res.error) return alert("Erreur : " + res.error.message);
+  closeModal(); chargerDonnees(); toast('Dépense ajoutée ✓');
+};
+
 function openProduitModal(id) {
-  var p = null; if(id) { for(var i=0; i<db.produits.length; i++){ if(db.produits[i].id === id) p = db.produits[i]; } }
-  var title = p ? "Modifier Produit" : "Nouveau Produit", valNom = p ? p.nom : "", valAchat = p ? (p.prix_achat || 0) : "", valVente = p ? p.prix_gros : "", valStock = p ? p.stock : "";
-  var html = '<label>Nom</label><input id="m_nom" value="' + valNom + '"><div class="row"><div style="flex:1;"><label>Prix d\'achat</label><input id="m_achat" type="number" value="' + valAchat + '"></div><div style="flex:1;"><label>Prix de vente</label><input id="m_vente" type="number" value="' + valVente + '"></div></div><label>Stock</label><input id="m_stock" type="number" value="' + valStock + '"><button class="btn" onclick="saveProduit(' + (p?p.id:'null') + ')">' + (p?'Enregistrer':'Créer') + '</button>';
-  openModal(title, html);
+  var p = id ? db.produits.find(x => x.id === id) : null;
+  var html = `<label>Nom</label><input id="p_nom" value="${p ? p.nom : ''}"><div class="row"><div style="flex:1;"><label>Prix d'achat</label><input id="p_achat" type="number" value="${p ? (p.prix_achat||0) : 0}"></div><div style="flex:1;"><label>Prix de vente</label><input id="p_vente" type="number" value="${p ? p.prix_gros : 0}"></div></div><label>Stock</label><input id="p_stock" type="number" value="${p ? p.stock : 0}"><button class="btn" onclick="saveProduit(${p ? p.id : 'null'})">${p ? 'Enregistrer' : 'Créer'}</button>`;
+  
+  // Ajout du bouton de suppression et réappro
+  if (p) {
+    html += `<hr style="border:none;border-top:1px solid var(--border);margin:24px 0;">
+    <div class="row">
+      <button class="btn btn-outline" onclick="openReapproModal(${p.id})">📦 Ajouter stock</button>
+      <button class="btn btn-danger" onclick="supprimerProduit(${p.id})">🗑️ Supprimer</button>
+    </div>`;
+  }
+  openModal(p ? "Modifier Produit" : "Nouveau Produit", html);
 }
-window.saveProduit = async function(id) {
-  var nom = $('#m_nom').value, achat = Number($('#m_achat').value) || 0, vente = Number($('#m_vente').value) || 0, stock = Number($('#m_stock').value) || 0;
-  if(id) { await supabaseClient.from('produits').update({nom: nom, prix_achat: achat, prix_gros: vente, stock: stock}).eq('id', id); } 
-  else { await supabaseClient.from('produits').insert([{nom: nom, prix_achat: achat, prix_gros: vente, stock: stock}]); }
+
+window.saveProduit = async (id) => {
+  var nom = $('#p_nom').value, achat = Number($('#p_achat').value)||0, vente = Number($('#p_vente').value)||0, stock = Number($('#p_stock').value)||0;
+  if(!nom) return toast("Nom obligatoire");
+  let res;
+  if(id) res = await supabaseClient.from('produits').update({nom, prix_achat: achat, prix_gros: vente, stock}).eq('id', id).select();
+  else res = await supabaseClient.from('produits').insert([{nom, prix_achat: achat, prix_gros: vente, stock}]).select();
+  if(res.error) return alert("Erreur : " + res.error.message);
   closeModal(); chargerDonnees(); toast('Enregistré ✓');
 };
 
-function openCommandeModal() { toast("Fonction de vente manuelle (à coder)"); }
+window.supprimerProduit = async (id) => {
+  if(!confirm("Supprimer ce produit ? Les commandes passées ne seront pas affectées.")) return;
+  await supabaseClient.from('produits').delete().eq('id', id);
+  closeModal(); chargerDonnees(); toast('Produit supprimé ✓');
+};
+
+window.openReapproModal = (id) => {
+  var p = db.produits.find(x => x.id === id);
+  openModal("Réapprovisionner", `<label>Quantité à ajouter</label><input id="r_qte" type="number" value="10"><button class="btn" style="margin-top:16px;" onclick="saveReappro(${id})">Ajouter au stock</button>`);
+};
+window.saveReappro = async (id) => {
+  var qte = Number($('#r_qte').value);
+  if(!qte || qte <= 0) return toast("Quantité invalide");
+  var p = db.produits.find(x => x.id === id);
+  await supabaseClient.from('produits').update({stock: p.stock + qte}).eq('id', id);
+  closeModal(); chargerDonnees(); toast('Stock mis à jour ✓');
+};
+
+function openCommandeModal() {
+  if (db.clients.length === 0) return toast("Ajoutez un client !");
+  if (db.produits.length === 0) return toast("Ajoutez un produit !");
+  panierActuel = [];
+  var optClients = db.clients.map(c => `<option value="${c.id}">${c.nom}</option>`).join('');
+  var optProds = db.produits.map(p => `<option value="${p.id}">${p.nom} (${fmt(p.prix_gros)} F)</option>`).join('');
+  var html = `<label>Client</label><select id="cmd_client">${optClients}</select>
+  <div style="background:var(--bg); padding:16px; border-radius:16px; margin-bottom:16px;">
+    <label>Ajouter un article</label>
+    <div style="display:flex; gap:12px; margin-bottom:12px;"><select id="cmd_produit" style="flex:2; margin-bottom:0;">${optProds}</select><input id="cmd_qte" type="number" value="1" min="1" style="flex:1; margin-bottom:0; text-align:center;"></div>
+    <button class="btn btn-outline" onclick="ajouterAuPanier()">+ Ajouter</button>
+  </div>
+  <label>Panier</label><div class="panier-liste" id="panier_liste"></div>
+  <div style="display:flex; justify-content:space-between; font-size:20px; font-weight:900; margin-bottom:16px;"><span>Sous-total</span><span id="cmd_sous_total">0 F</span></div>
+  <div style="background:var(--primary-light); padding:16px; border-radius:16px; margin-bottom:16px;">
+    <div class="row"><div style="flex:1;"><label>Remise</label><input id="cmd_remise" type="number" value="0" oninput="majPanierUI()" style="margin-bottom:0;"></div><div style="flex:1;"><label>Acompte</label><input id="cmd_acompte" type="number" value="0" oninput="majPanierUI()" style="margin-bottom:0;"></div></div>
+    <div style="display:flex; justify-content:space-between; margin-top:16px; font-weight:800; color:var(--danger);"><span>Reste à crédit</span><span id="cmd_reste">0 F</span></div>
+  </div>
+  <button class="btn" onclick="validerCommande()">Valider la vente</button>`;
+  openModal("Nouvelle Vente", html);
+  majPanierUI();
+}
+
+window.ajouterAuPanier = () => {
+  var sel = $('#cmd_produit'), p_id = Number(sel.value), qte = Number($('#cmd_qte').value);
+  var prod = db.produits.find(p => p.id === p_id);
+  if(qte > prod.stock) return toast("Stock insuffisant !");
+  var exist = panierActuel.find(i => i.produit_id === p_id);
+  if(exist) exist.quantite += qte;
+  else panierActuel.push({ produit_id: p_id, nom: prod.nom, prix_unitaire: prod.prix_gros, quantite: qte });
+  $('#cmd_qte').value = 1; majPanierUI();
+};
+
+window.retirerDuPanier = (i) => { panierActuel.splice(i, 1); majPanierUI(); };
+
+function majPanierUI() {
+  var list = $('#panier_liste'), sousTotal = 0;
+  if(panierActuel.length === 0) list.innerHTML = '<div style="text-align:center; color:var(--muted);">Panier vide</div>';
+  else { list.innerHTML = panierActuel.map((item, i) => { var st = item.quantite * item.prix_unitaire; sousTotal += st; return `<div class="panier-item"><div><div class="panier-item-title">${item.nom}</div><div class="item-sub">${item.quantite} x ${fmt(item.prix_unitaire)} F</div></div><div style="display:flex; gap:12px; align-items:center;"><div class="panier-item-prix">${fmt(st)} F</div><button class="btn-remove" onclick="retirerDuPanier(${i})">✕</button></div></div>`; }).join(''); }
+  var rem = Number($('#cmd_remise').value) || 0; var acp = Number($('#cmd_acompte').value) || 0;
+  var total = sousTotal - rem; var reste = total - acp;
+  if(reste < 0) { reste = 0; $('#cmd_acompte').value = total; }
+  $('#cmd_sous_total').textContent = fmt(sousTotal) + ' F'; $('#cmd_reste').textContent = fmt(reste) + ' F';
+}
+
+window.validerCommande = async () => {
+  if(panierActuel.length === 0) return toast("Panier vide");
+  var client_id = Number($('#cmd_client').value);
+  var remise = Number($('#cmd_remise').value) || 0;
+  var acompte = Number($('#cmd_acompte').value) || 0;
+  var sousTotal = panierActuel.reduce((s, i) => s + (i.quantite * i.prix_unitaire), 0);
+  var total = sousTotal - remise; var reste = total - acompte;
+  const { data: cmdData, error: err1 } = await supabaseClient.from('commandes').insert([{client_id, items: panierActuel, total, acompte, reste, date: new Date().toLocaleDateString('fr-FR')}]).select();
+  if(err1) return toast("Erreur commande");
+  if(reste > 0 && cmdData[0]) { var ech = new Date(); ech.setDate(ech.getDate() + 7); await supabaseClient.from('creances').insert([{commande_id: cmdData[0].id, client_id, montant: total, montant_paye: acompte, date_echeance: ech.toLocaleDateString('fr-FR'), statut: 'impayee'}]); }
+  for(var item of panierActuel) { await supabaseClient.from('produits').update({stock: db.produits.find(p=>p.id===item.produit_id).stock - item.quantite}).eq('id', item.produit_id); }
+  closeModal(); chargerDonnees(); toast('Vente validée ✓');
+};
+
+// ==========================================
+// 7. DÉTAILS VENTE & CLIENT
+// ==========================================
+window.voirDetailVente = function(cmdId) {
+  var cmd = db.commandes.find(c => c.id === cmdId);
+  if(!cmd) return;
+  var cli = db.clients.find(c => c.id === cmd.client_id);
+  var nomCli = cli ? cli.nom : 'Client en ligne';
+  var telCli = cli ? cli.telephone : '';
+  var items = cmd.items || []; var remise = cmd.remise || 0; var acompte = cmd.acompte || 0; var reste = cmd.reste || 0;
+  var nomCommerce = localStorage.getItem('grossiste_nom') || 'Mon Commerce';
+  var html = `<div style="margin-bottom:16px;"><b>Client :</b> ${nomCli}<br><b>Date :</b> ${cmd.date}</div><table><thead><tr><th>Produit</th><th class="text-right">Qté</th><th class="text-right">P.U.</th><th class="text-right">Total</th></tr></thead><tbody>`;
+  items.forEach(item => { var st = item.quantite * item.prix_unitaire; html += `<tr><td>${item.nom}</td><td class="text-right">${item.quantite}</td><td class="text-right">${fmt(item.prix_unitaire)}</td><td class="text-right" style="font-weight:700;">${fmt(st)}</td></tr>`; });
+  html += `</tbody></table><div style="display:flex; justify-content:space-between; padding-top:8px; font-size:14px; color:var(--muted);"><span>Sous-total</span><span>${fmt(cmd.total + remise)} F</span></div>`;
+  if (remise > 0) html += `<div style="display:flex; justify-content:space-between; padding-top:4px; font-size:14px; color:var(--danger);"><span>Remise</span><span>-${fmt(remise)} F</span></div>`;
+  html += `<div style="display:flex; justify-content:space-between; padding-top:12px; font-size:22px; font-weight:900; border-top:1px dashed var(--border); margin-top:12px;"><span>Total Net</span><span>${fmt(cmd.total)} F</span></div>`;
+  html += `<div style="display:flex; justify-content:space-between; padding-top:8px; font-size:14px; color:var(--primary); font-weight:700;"><span>Acompte versé</span><span>${fmt(acompte)} F</span></div>`;
+  var msg = `🧾 *REÇU DE VENTE*\n🏪 ${nomCommerce}\n📅 ${cmd.date}\n👤 ${nomCli}\n------------------------\n`;
+  items.forEach(item => { msg += `▪️ ${item.quantite} x ${item.nom} (${fmt(item.prix_unitaire)} F)\n`; });
+  msg += `------------------------\n`; if (remise > 0) msg += `Remise : -${fmt(remise)} F\n`;
+  msg += `*TOTAL NET : ${fmt(cmd.total)} FCFA*\nAcompte : ${fmt(acompte)} F\n🔴 *Reste à payer : ${fmt(reste)} FCFA*\n\nMerci ! 🙏`;
+  var numPropre = (telCli || '').replace(/\D/g, ''); if (numPropre.startsWith('221')) numPropre = numPropre.substring(3);
+  if (numPropre) html += `<a href="https://wa.me/221${numPropre}?text=${encodeURIComponent(msg)}" target="_blank" class="btn" style="margin-top:24px; background:#25D366; text-decoration:none;">📄 Envoyer le reçu (WhatsApp)</a>`;
+  else html += `<button class="btn" style="margin-top:24px; background:#25D366;" onclick="alert('Pas de numéro enregistré.')">📄 Envoyer le reçu (WhatsApp)</button>`;
+  openModal("Détails de la Vente", html);
+};
+
+window.voirDetailClient = function(id) {
+  var cli = db.clients.find(c => c.id === id);
+  if(!cli) return;
+  var detteTotale = 0; var creancesClient = [];
+  db.creances.forEach(cr => { if(cr.client_id === id && cr.statut !== 'payee') { detteTotale += (cr.montant - cr.montant_paye); creancesClient.push(cr); } });
+  var nbCmd = db.commandes.filter(cmd => cmd.client_id === id).length;
+  var html = `<div style="text-align:center; margin-bottom:24px;"><div style="font-size:48px; margin-bottom:12px;">🏪</div><h3 style="font-size:24px; font-weight:800;">${cli.nom}</h3><div class="item-sub" style="font-size:16px;">${cli.telephone || 'Sans numéro'}</div></div><div class="row" style="margin-bottom:24px;"><div class="card" style="flex:1;text-align:center;margin:0;background:var(--bg);box-shadow:none;border:none;"><div class="item-sub">Ventes</div><div style="font-size:24px;font-weight:800;">${nbCmd}</div></div><div class="card" style="flex:1;text-align:center;margin:0;background:var(--bg);box-shadow:none;border:none;"><div class="item-sub">Dette totale</div><div class="text-danger" style="font-size:24px;font-weight:800;">${fmt(detteTotale)} F</div></div></div>`;
+  if(creancesClient.length > 0) {
+    html += `<label>Détail des factures impayées</label><div class="card" style="padding:0; background:var(--bg); border:none;">`;
+    creancesClient.forEach(cr => { var reste = cr.montant - cr.montant_paye; html += `<div class="item" style="padding:12px 16px;"><div><div style="font-weight:700;">Échéance : ${cr.date_echeance}</div><div class="item-sub">Total : ${fmt(cr.montant)} F (Avance: ${fmt(cr.montant_paye)} F)</div></div><div class="text-danger" style="font-weight:800;">${fmt(reste)} F</div></div>`; });
+    html += `</div>`;
+  } else { html += `<div style="text-align:center; color:var(--primary); font-weight:bold; margin-top:20px;">Aucune dette en cours 🎉</div>`; }
+  
+  // Bouton supprimer client
+  html += `<div style="margin-top:24px;"><button class="btn btn-danger" onclick="supprimerClient(${id})">🗑️ Supprimer ce client</button></div>`;
+  openModal("Fiche Client", html);
+};
+
+window.supprimerClient = async (id) => {
+  if(!confirm("Supprimer ce client ? Ses dettes seront également effacées.")) return;
+  await supabaseClient.from('creances').delete().eq('client_id', id);
+  await supabaseClient.from('clients').delete().eq('id', id);
+  closeModal(); chargerDonnees(); toast('Client supprimé ✓');
+};
+
+window.openPaiementModal = (creance_id, reste) => {
+  openModal("Encaisser", `<div style="text-align:center;margin-bottom:24px;"><div class="item-sub">Reste à payer</div><div class="big-stat" style="color:var(--primary);">${fmt(reste)} FCFA</div></div><label>Montant reçu (FCFA)</label><input id="pay_montant" type="number" value="${reste}" min="1" max="${reste}"><button class="btn" onclick="savePaiement(${creance_id}, ${reste})">Confirmer</button>`);
+};
+
+window.savePaiement = async (creance_id, reste) => {
+  var montant = Number($('#pay_montant').value);
+  if (!montant || montant <= 0) return toast("Montant invalide");
+  if (montant > reste) return toast("Dépasse la dette !");
+  var cr = db.creances.find(c => c.id === creance_id);
+  var nouveauPaye = cr.montant_paye + montant;
+  var statut = nouveauPaye >= cr.montant ? 'payee' : 'impayee';
+  await supabaseClient.from('creances').update({montant_paye: nouveauPaye, statut: statut}).eq('id', creance_id);
+  closeModal(); chargerDonnees(); toast('Paiement enregistré ✓');
+};
+
+// ==========================================
+// 8. PARAMÈTRES (AVEC NUMERO WHATSAPP)
+// ==========================================
+window.openSettings = function() {
+  var nom = localStorage.getItem('grossiste_nom') || 'Mon Commerce';
+  var pin = localStorage.getItem('grossiste_pin') || '1234';
+  var tel = localStorage.getItem('grossiste_tel') || '';
+  
+  var html = `
+    <label>Nom du commerce</label>
+    <input id="set_nom" value="${nom}" placeholder="Ex: Grossiste Mamadou">
+    
+    <label>Numéro WhatsApp (pour les commandes clients)</label>
+    <input id="set_tel" type="tel" value="${tel}" placeholder="Ex: 771234567">
+    
+    <label>Code PIN (4 chiffres)</label>
+    <input id="set_pin" type="tel" value="${pin}" maxlength="4" placeholder="••••">
+    
+    <button class="btn" style="margin-top:16px;" onclick="sauvegarderSettings()">Enregistrer les modifications</button>
+  `;
+  openModal("Paramètres", html);
+};
+
+window.sauvegarderSettings = function() {
+  var nom = $('#set_nom').value.trim();
+  var pin = $('#set_pin').value.trim();
+  var tel = $('#set_tel').value.trim();
+  
+  if (!nom) return toast("Le nom ne peut pas être vide.");
+  if (pin.length !== 4) return toast("Le PIN doit faire exactement 4 chiffres.");
+  
+  localStorage.setItem('grossiste_nom', nom);
+  localStorage.setItem('grossiste_pin', pin);
+  localStorage.setItem('grossiste_tel', tel);
+  
+  closeModal(); 
+  toast('Paramètres enregistrés ✓');
+  renderView(currentView); 
+};
+
+// ==========================================
+// 9. MODE CLIENT (UTILISE LE VRAI NUMERO)
+// ==========================================
+function renderClientView() {
+  $('#header-title').textContent = "Boutique en ligne";
+  $('#fab').style.display = 'flex';
+  var html = '<div class="card" style="background:var(--primary); color:white;"><h2>Bienvenue !</h2><p>Commandez vos produits en gros.</p></div>';
+  html += '<label>Votre nom / Boutique</label><input id="client_nom" placeholder="Ex: Boutique Ndiaye">';
+  html += '<label>Votre numéro (WhatsApp)</label><input id="client_tel" type="tel" placeholder="Ex: 771234567">';
+  html += '<h3 style="margin-top:24px;">Produits</h3><div class="card" style="padding:0; overflow:hidden;">';
+  db.produits.forEach(p => { if (p.stock > 0) { html += `<div class="item" style="padding:16px;"><div><div class="item-title">${p.nom}</div><div class="item-sub">${fmt(p.prix_gros)} FCFA</div></div><button class="btn btn-outline" style="width:auto; padding:8px 16px;" onclick="ajouterAuPanierClient(${p.id})">Ajouter</button></div>`; } });
+  html += '</div><div id="panier_client_zone"></div><div style="text-align:center; margin-top:30px; margin-bottom:20px;"><button class="btn btn-outline" onclick="window.location.href = window.location.pathname">← Retour Admin</button></div>';
+  $('#app').innerHTML = html; majPanierClientUI();
+}
+
+window.ajouterAuPanierClient = (id) => {
+  var prod = db.produits.find(p => p.id === id);
+  var item = panierActuel.find(i => i.produit_id === id);
+  if(item) item.quantite++; else panierActuel.push({ produit_id: id, nom: prod.nom, prix_unitaire: prod.prix_gros, quantite: 1 });
+  majPanierClientUI();
+};
+window.retirerDuPanierClient = (i) => { panierActuel.splice(i, 1); majPanierClientUI(); };
+
+function majPanierClientUI() {
+  var zone = $('#panier_client_zone');
+  if(!zone) return;
+  if(panierActuel.length === 0) { zone.innerHTML = ''; return; }
+  var total = panierActuel.reduce((s, i) => s + (i.quantite * i.prix_unitaire), 0);
+  var html = '<div class="card"><h3>Votre Panier</h3>';
+  panierActuel.forEach((item, i) => { html += `<div class="item"><div>${item.quantite} x ${item.nom}</div><div class="panier-item-prix">${fmt(item.quantite * item.prix_unitaire)} F <button class="btn-remove" style="width:24px;height:24px;display:inline-flex;margin-left:8px;" onclick="retirerDuPanierClient(${i})">✕</button></div></div>`; });
+  html += `<div style="font-size:20px; font-weight:900; margin-top:16px;">Total : ${fmt(total)} F</div><button class="btn" style="margin-top:16px;" onclick="validerCommandeClient()">Commander</button></div>`;
+  zone.innerHTML = html;
+}
+
+window.validerCommandeClient = async () => {
+  var nom = $('#client_nom').value, tel = $('#client_tel').value;
+  if(!nom || !tel) return toast("Nom et numéro requis");
+  if(panierActuel.length === 0) return toast("Panier vide");
+  var total = panierActuel.reduce((s, i) => s + (i.quantite * i.prix_unitaire), 0);
+  const { data: cliData } = await supabaseClient.from('clients').insert([{nom, telephone: tel}]).select();
+  var clientId = cliData ? cliData[0].id : null;
+  const { data: cmdData, error } = await supabaseClient.from('commandes').insert([{client_id: clientId, items: panierActuel, total, acompte: 0, reste: total, date: new Date().toLocaleDateString('fr-FR')}]).select();
+  if(!error && cmdData[0]) { await supabaseClient.from('creances').insert([{commande_id: cmdData[0].id, client_id: clientId, montant: total, montant_paye: 0, date_echeance: new Date().toLocaleDateString('fr-FR'), statut: 'impayee'}]); }
+  var msg = `🛒 *COMMANDE*\n👤 ${nom}\n📞 ${tel}\n\n` + panierActuel.map(i => `▪️ ${i.quantite} x ${i.nom}`).join('\n') + `\n\n*TOTAL : ${fmt(total)} F*`;
+  
+  // Le vrai numéro est maintenant récupéré depuis les paramètres du grossiste
+  var numGrossiste = localStorage.getItem('grossiste_tel') || '';
+  var numPropre = numGrossiste.replace(/\D/g, ''); if (numPropre.startsWith('221')) numPropre = numPropre.substring(3);
+  
+  if(numPropre) {
+    window.open('https://wa.me/221' + numPropre + '?text=' + encodeURIComponent(msg), '_blank'); 
+    toast("Commande envoyée !");
+  } else {
+    alert("Le numéro WhatsApp du grossiste n'est pas configuré. Veuillez lui dire de le renseigner dans ses paramètres.");
+  }
+  
+  panierActuel = [];
+  majPanierClientUI();
+};
 
 // Lancement
-init();
+chargerDonnees();
 </script>
 </body>
 </html>
